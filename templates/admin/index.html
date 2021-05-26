@@ -1,0 +1,40 @@
+{% extends "admin/layout.html"%}
+
+{% block body %}
+    {% include 'partials/_flashmessages.html' %}
+    {% if session.get('auth', '') == 'admin' %}
+        <div class="row">
+    <div class="col-md-12 grid-margin">
+        <div class="card rounded">
+            <div class="card-body">
+                <div class="card-title">E-posta gönderme</div>
+                <form method="POST" action="{{url_for('controller.admin')}}">
+                    <div class="form-group">
+                        <label for="email">Gönderilecek Adres*</label>
+                        <input id="email" name="email" type="email" class="form-control" required />
+                    </div>
+                    <div class="form-group">
+                        <label for="name">Kişinin Adı Soyadı</label>
+                        <input id="name" name="name" type="text" class="form-control" />
+                    </div>
+                    <div class="form-group">
+                        <label for="subject">Mail Konusu*</label>
+                        <input id="subject" name="subject" type="text" class="form-control" required />
+                    </div>
+                    <div class="form-group">
+                        <label for="body">Mail içeriği*</label>
+                        <textarea class="ckeditor" id="body" name="body"></textarea>
+                        <script>
+                                CKEDITOR.replace( 'body' );
+                        </script>
+                    </div>
+                    <div class="form-group">
+                        <button class="btn btn-primary" type="submit" name="event" value="sendmail">Yolla</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+  </div>
+    {% endif %}
+{% endblock %}

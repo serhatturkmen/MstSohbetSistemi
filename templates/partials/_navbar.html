@@ -1,0 +1,37 @@
+<!-- partial:partials/_navbar.html -->
+<nav class="navbar col-lg-12 col-12 p-0 fixed-top d-flex flex-row">
+  <div class="navbar-brand-wrapper d-flex justify-content-center">
+    <div class="navbar-brand-inner-wrapper d-flex justify-content-between align-items-center w-100">
+      <p class="navbar-brand brand-logo">{{ setting.title }}</p>
+      <p class="navbar-brand brand-logo-mini">{{ setting.title[0] }}{{ setting.title[1] }}{{ setting.title[2] }}</p>
+      <button class="navbar-toggler navbar-toggler align-self-center" type="button" data-toggle="minimize">
+        <span class="mdi mdi-sort-variant"></span>
+      </button>
+    </div>
+  </div>
+  <div class="navbar-menu-wrapper d-flex align-items-center justify-content-end">
+    <button class="navbar-toggler navbar-toggler-right d-lg-none align-self-center" type="button" data-toggle="offcanvas">
+      <span class="mdi mdi-menu"></span>
+    </button>
+    <ul class="navbar-nav navbar-nav-right">
+      <li class="nav-item nav-profile dropdown">
+        <a class="nav-link dropdown-toggle" href="#" data-toggle="dropdown" id="profileDropdown" aria-expanded="false">
+          <img src="{{ url_for('static', filename='img/user/') }}{{ user.imagePath }}" alt="{{ user.name }} {{user.surname}}">
+          <span class="nav-profile-name">{{ user.name }} {{user.surname}}</span>
+        </a>
+        <div class="dropdown-menu dropdown-menu-right navbar-dropdown" aria-labelledby="profileDropdown">
+          <a class="dropdown-item" href="{{ url_for('controller.adminMySetting') }}">
+            <i class="mdi mdi-account-badge text-primary"></i>
+            Ayarlarım
+          </a>
+          <a class="dropdown-item" href="{{ url_for('controller.logout') }}">
+            <i class="mdi mdi-logout text-primary"></i>
+            Çıkış
+          </a>
+        </div>
+      </li>
+    </ul>
+
+  </div>
+</nav>
+<!-- partial -->

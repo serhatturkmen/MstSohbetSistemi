@@ -1,0 +1,42 @@
+{% extends "admin/layout.html" %}
+{% block head %}
+<title>Mail Ayarlarını Güncelle</title>
+{% endblock %}
+{% block body %}
+  <div class="row">
+    <div class="col-md-12">
+      <div class="card">
+          <div class="card-header">
+              <div class="col-8" style="float:left; ">Mail Ayarlarını Güncelle</div>
+              <div class="col-4 text-right" style="float:right;">
+                <a class="btn btn-primary" href="{{ url_for('controller.admin') }}">Geri</a>
+            </div>
+          </div>
+        <div class="card-body">
+        {% include 'partials/_flashmessages.html' %}
+            <form method="POST" action="{{ url_for('controller.mailsetting') }}" autocomplete="off">
+                <div class="form-group">
+                    <label for="smtpserver">Smtp Sunucu Adresi</label>
+                    <input type="text" name="smtpserver" id="smtpserver" value="{{ maildetail.smtpserver }}" class="form-control" autocomplete="off" required />
+                </div>
+                <div class="form-group">
+                    <label for="smtpport">Smtp Sunucu Portu</label>
+                    <input type="text" name="smtpport" id="smtpport" value="{{ maildetail.smtpport }}" class="form-control" autocomplete="off" required />
+                </div>
+                <div class="form-group">
+                    <label for="smtpemail">Email Adresi</label>
+                    <input type="email" name="smtpemail" id="smtpemail" value="{{ maildetail.smtpemail }}" class="form-control" autocomplete="off" />
+                </div>
+                <div class="form-group">
+                    <label for="smtppassword">Email şifre</label>
+                    <input type="text" name="smtppassword" id="smtppassword" value="{{ maildetail.smtppassword }}" class="form-control" required />
+                </div>
+                <div class="form-group">
+                    <button type="submit" name="event" value="updatemailsetting" class="btn btn-primary">Güncelle</button>
+                </div>
+            </form>
+        </div>
+      </div>
+    </div>
+  </div>
+{% endblock %}

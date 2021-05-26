@@ -1,0 +1,102 @@
+{% extends "admin/layout.html" %}
+{% block head %}
+<title>Site Ayarlarını Güncelle</title>
+{% endblock %}
+{% block body %}
+  <div class="row">
+    <div class="col-md-12">
+      <div class="card">
+          <div class="card-header">
+              <div class="col-8" style="float:left; ">Site Ayarlarını Güncelle</div>
+              <div class="col-4 text-right" style="float:right;">
+                <button type="button" data-toggle="modal" data-target="#changeicon" class="btn btn-primary float-left">İkon Değiştir</button>
+                <a class="btn btn-primary" href="{{ url_for('controller.admin') }}">Geri</a>
+            </div>
+          </div>
+        <div class="card-body">
+        {% include 'partials/_flashmessages.html' %}
+            <form method="POST" action="{{ url_for('controller.websetting') }}" autocomplete="off">
+                <div class="form-group">
+                    <label for="sitetitle">Site Başlığı</label>
+                    <input type="text" name="sitetitle" id="sitetitle" value="{{ setting.title }}" class="form-control" autocomplete="off" required />
+                </div>
+                <div class="form-group">
+                    <label for="sitemetatitle">Site Meta Başlığı</label>
+                    <input type="text" name="sitemetatitle" id="sitemetatitle" value="{{ setting.metatitle }}" class="form-control" autocomplete="off" required />
+                </div>
+                <div class="form-group">
+                    <label for="sitemetametakeyword">Site Meta Kelimeler</label>
+                    <input type="text" name="sitemetametakeyword" id="sitemetametakeyword" value="{{ setting.metakeyword }}" class="form-control" autocomplete="off" required />
+                </div>
+                <div class="form-group">
+                    <label for="siteanalytics">Google Analitik Kodu</label>
+                    <textarea type="text" name="siteanalytics" id="siteanalytics" class="form-control" rows="5" autocomplete="off" required>{{ setting.analitik }}</textarea>
+                </div>
+                <div class="form-group">
+                    <label for="projectweek">Google Analitik Kodu</label>
+                    <select class="form-control" name="projectweek" id="projectweek">
+                        <option value="1" {%if setting.projectweek == 1%}selected{%endif%}>Proje Sunma Haftası</option>
+                        <option value="2" {%if setting.projectweek == 2%}selected{%endif%}>2. Hafta</option>
+                        <option value="3" {%if setting.projectweek == 3%}selected{%endif%}>3. Hafta</option>
+                        <option value="4" {%if setting.projectweek == 4%}selected{%endif%}>4. Hafta</option>
+                        <option value="5" {%if setting.projectweek == 5%}selected{%endif%}>5. Hafta</option>
+                        <option value="6" {%if setting.projectweek == 6%}selected{%endif%}>6. Hafta</option>
+                        <option value="7" {%if setting.projectweek == 7%}selected{%endif%}>7. Hafta</option>
+                        <option value="0" {%if setting.projectweek == 0%}selected{%endif%}>Proje Girişleri Kapansın</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <button type="submit" name="event" value="updatewebsetting" class="btn btn-primary">Güncelle</button>
+                </div>
+            </form>
+        </div>
+      </div>
+    </div>
+  </div>
+<!-- modal başla-->
+<div class="modal fade" id="changeicon" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">Resmi Değiştir</div>
+            <form class="form col-sm-12" action="{{url_for('controller.websetting')}}" method="POST" enctype="multipart/form-data">
+                <div class="form-group">
+                    <label for="websiteicon">Site resmini güncellemek için seçiniz.</label>
+                    <div class="custom-file">
+                        <input type="file" class="custom-file-input"
+                            accept="image/*"
+                            name="websiteicon"
+                            id="websiteicon"
+                            onchange="validateFileType()" />
+                        <label class="custom-file-label" for="websiteicon" data-browse="Seç">Resim Seçiniz</label>
+                    </div>
+                </div>
+              <div class="form-group">
+                  <button type="submit" class="btn btn-primary" name="event" value="updatewebicon">Değiştir</button>
+                  <button type="button" class="btn btn-danger float-right" data-dismiss="modal">Kapat</button>
+              </div>
+            </form>
+        </div>
+    </div>
+</div>
+<!-- modal bitiş-->
+<script>
+    // seçilen dosya adını file inputa aktarıyor
+    $("#websiteicon").on("change", function() {
+      var fileName = $(this).val().split("\\").pop();
+      $(this).siblings(".custom-file-label").addClass("selected").html(fileName);
+    });
+    // resim kontrolü yapıyor
+    function validateFileType(){
+        var fileName = document.getElementById("userfile").value;
+        var idxDot = fileName.lastIndexOf(".") + 1;
+        var extFile = fileName.substr(idxDot, fileName.length).toLowerCase();
+        if (extFile=="jpg" || extFile=="jpeg" || extFile=="png"){
+            //to do
+        }else{
+            alert("Sadece jpg, jpeg ve png formtında resim kabul etmekteyiz");
+            document.getElementById("websiteicon").value="";
+        }
+    }
+</script>
+
+{% endblock %}

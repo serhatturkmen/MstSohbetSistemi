@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+
+<html lang="tr"><head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="robots" content="noindex">
+    {% block head %}
+        <title>Anasayfa</title>
+    {%endblock%}
+
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap.css') }}"/>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/student.css') }}"/>
+  <link rel="shortcut icon" href="{{ url_for('static', filename='img/') }}{{setting.ikon}}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='mdi/css/materialdesignicons.min.css') }}">
+  <style>.cke{visibility:hidden;}</style>
+</head>
+
+<body>
+  <div class="container contact">
+	<div class="row">
+		<div class="col-md-3">
+			<div class="mst-info">
+				<img class="img-fluid mx-auto d-block rounded" src="{{ url_for('static', filename='img/user/') }}{{ user.imagePath }}" alt="image">
+				<h3 class="text-center">{{ user.name }} {{user.surname}}</h3>
+                <hr>
+                <ul class="mylist">
+                  <li><a href="{{url_for('controller.chat')}}">Mesajlarım</a></li>
+                  <li><a href="{{ url_for('controller.logout') }}">Çıkış</a></li>
+                </ul>
+			</div>
+		</div>
+		<div class="col-md-9">
+            {% include 'partials/_flashmessages.html' %}
+          {% block body%}
+
+          {%endblock%}
+		</div>
+	</div>
+</div>
+
+  <!-- container-scroller -->
+
+  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js"></script>
+
+  <script src="{{url_for('static', filename = 'ckeditor/ckeditor.js')}}"></script>
+  <script src="{{url_for('static', filename = 'js/template.js')}}"></script>
+  {{setting.analitik | safe}}
+
+</body>
+</html>

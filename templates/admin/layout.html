@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="tr">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="robots" content="noindex" />
+    {% block head %}
+        <title>Admin Paneli</title>
+    {%endblock%}
+  <script src="https://code.jquery.com/jquery-3.4.1.slim.min.js"></script>
+  <link rel="stylesheet" href="{{ url_for('static', filename='mdi/css/materialdesignicons.min.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}"/>
+  <link rel="shortcut icon" href="{{ url_for('static', filename='img/') }}{{setting.icon}}">
+</head>
+<body>
+  <div class="container-scroller">
+    {% include 'partials/_navbar.html' %}
+    <div class="container-fluid page-body-wrapper">
+      {% include 'partials/_sidebar.html' %}
+      <div class="main-panel">
+        <div class="content-wrapper">
+
+          {% block body%}{%endblock%}
+
+        </div>
+        <!-- content-wrapper ends -->
+        {% include 'partials/_footer.html' %}
+      </div>
+      <!-- main-panel ends -->
+    </div>
+    <!-- page-body-wrapper ends -->
+  </div>
+  <!-- container-scroller -->
+
+  <script src="{{url_for('static', filename = 'ckeditor/ckeditor.js')}}"></script>
+
+  <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"></script>
+  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js"></script>
+
+  <script src="{{url_for('static', filename = 'js/off-canvas.js')}}"></script>
+  <script src="{{url_for('static', filename = 'js/template.js')}}"></script>
+  <script src="{{url_for('static', filename = 'js/hoverable-collapse.js')}}"></script>
+  {{setting.analitik | safe}}
+</body>
+</html>
+

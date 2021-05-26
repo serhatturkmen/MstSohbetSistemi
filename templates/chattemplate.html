@@ -1,0 +1,327 @@
+<html lang="tr">
+<head>
+    <meta charset="UTF-8"/>
+    <title>DoT Chat</title>
+    <link
+            rel="stylesheet"
+            href="{{ url_for('static', filename='css/chatstyle.css') }}"
+    />
+
+    <link
+            href="//maxcdn.bootstrapcdn.com/bootstrap/4.1.1/css/bootstrap.min.css"
+            rel="stylesheet"
+    />
+
+    <link
+            href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.css"
+            type="text/css"
+            rel="stylesheet"
+    />
+
+    <script
+            type="text/javascript"
+            src="http://ajax.googleapis.com/ajax/libs/jquery/1.5/jquery.min.js"
+    ></script>
+
+    <!--
+    <link href="https://emoji-css.afeld.me/emoji.css" rel="stylesheet">
+    -->
+
+    <script src="{{ url_for('static', filename='js/jquery-3.4.1.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/bootstrap.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/emoji.js') }}"></script>
+
+    <!--
+
+        <script type="text/javascript" src="{{ url_for('static', filename='js/socket.io.min.js') }}"></script>
+    -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/3.0.4/socket.io.js"></script>
+
+    <script type="text/javascript" charset="utf-8">
+        window.onload = function () {
+            document.getElementsByTagName('input')[0].focus();
+
+            scrolldown();
+
+            //const socket = io.connect(location.protocol + '//' + document.domain + ':' + location.port);
+            const socket = io.connect('http://' + document.domain + ':' + location.port + '/chat');
+
+            socket.on('connect', function () {
+                socket.emit('joined', {
+                    username: "{{ session.get("name", "") }}",
+                    room: "{{ session.get("chatid", "") }}"
+                });
+
+            });
+
+            socket.on('users', function (data) { //kullanıcı listesi
+                {% if chatting %}
+                    $("#online").empty();
+                    var kullanicilar = data.user;
+                    var username = "{{users(messaginguser).username}}";
+                    kullanicilar.forEach(function (item, index, array) {
+                        if (item === username) {
+                            $("#online").text("(Çevrimiçi)");
+                        }
+                    });
+                {% endif %}
+            });
+
+            $('#text').keypress(function (e) {
+                var code = e.keyCode || e.which;
+                if (code == 13) {
+                    let message_input = document.getElementById('text');
+                    let text = message_input.value.trim();
+                    if (text.length) {
+                        socket.emit('text', {msg: text});
+                    }
+                    message_input.value = '';
+                    message_input.focus();
+                }
+            });
+
+
+            $("#sendbutton").click(function () {
+                let message_input = document.getElementById('text');
+                let text = message_input.value.trim();
+                if (text.length) {
+                    socket.emit('text', {msg: text});
+                }
+                message_input.value = '';
+                message_input.focus();
+            });
+
+            socket.on('message', function (data) {//gelen mesaj ve giden mesaj
+                mesaj = data.msg;
+                if ("{{ session.get("userid", "") }}" == data.userid) {
+                    $('#message').append('' +
+                        '<div class="row">' +
+                        '<div class="col-md-12">' +
+                        '<div class="sendermsgbox">' +
+                        '<p>' + mesaj + '<span>' + data.tarih + '</span></p>' +
+                        '</div>' +
+                        '</div>' +
+                        '</div>');
+
+                    scrolldown();
+                } else {
+                    $('#message').append('' +
+                        '<div class="row">' +
+                        '<div class="col-md-12">' +
+                        '<div class="receivermsgbox">' +
+                        '<p>' + mesaj + '<span>' + data.tarih + '</span></p>' +
+                        '</div>' +
+                        '</div>' +
+                        '</div>');
+                    scrolldown();
+                }
+            });
+
+            window.onbeforeunload = function () {
+                socket.emit('left', {});
+                socket.disconnect();
+                window.location.href = "{{ url_for('.logout') }}";
+            };
+
+            $("#logout").click(function () {
+                socket.emit('left', {});
+                socket.disconnect();
+                window.location.href = "{{ url_for('.logout') }}";
+            });
+
+        };
+
+        function masaustuBildirim(baslik, detay) {
+            //Daha önceden izin alınmamışsa izin alınıyor
+            if (Notification.permission !== "granted")
+                Notification.requestPermission();
+
+            //Belirtilen detaylara göre bildirim gösteriliyor
+            var notification = new Notification(baslik, {body: detay});
+            /*
+            //Bildirime tıklanınca açılacak sayfa ayarlanıyor
+            //function masaustuBildirim(baslik, detay,link)
+            notification.onclick = function() {
+                window.open(link);
+            }
+            */
+        }
+
+        function scrolldown() {
+            $('#message').scrollTop($('#message')[0].scrollHeight);
+        }
+    </script>
+    <style>
+        @font-face {
+            font-family: "Noto Emoji Regular";
+            src: url("{{ url_for("static", filename="fonts/NotoEmoji-Regular.ttf") }}") format("truetype");
+        }
+    </style>
+</head>
+
+<body style="background-color: #0f74a8;">
+<div class="container">
+    <div class="row pt-3">
+        <div class="col-sm-4 lefsidebar">
+            <div class="row">
+                <div class="col-sm-12 h-30 text-center">
+                    <button
+                            type="button"
+                            class="btn btn-primary float-left"
+                            title="Yeni Sohbet"
+                            data-toggle="modal"
+                            data-target="#addchat"
+                    >
+                        <i class="fa fa-plus"></i>
+                    </button>
+                    {{ users(session.get("userid", "")).name +" "+
+              users(session.get("userid", "")).surname + " ("+
+              users(session.get("userid", "")).username +")" }}
+                    <button
+                            class="btn btn-primary float-right"
+                            title="Çıkış Yap"
+                            id="logout"
+                    >
+                        <i class="fa fa-share-square"></i>
+                    </button>
+                </div>
+                <div class="col-md-12 users">
+                    {% include 'partials/_flashmessages.html' %} {% if chatting_users
+              == [] %}
+                    <div class="jumbotron text-center">
+                        <h3>Sohbet Ettiğin Kimse Yok</h3>
+                        Sohbet için sol üst köşedeki + butonundan arkadaşından aldığın
+                        kullanıcı adıyla sohbet başlatabilirsin.
+                    </div>
+                {% else %} {% for chatting_user in chatting_users %}
+                        <a
+                                href="{{ url_for('.chatwithid', chatid=chatting_user.chatid) }}"
+                                class="row letusers"
+                        >
+                            <div class="col-md-2 p-0">
+                                <img class="img-fluid" src="{{ url_for("static",
+                  filename="img/user/") }}{{ users(chatting_user.userid).imagePath }}">
+                            </div>
+                            <div class="col-md-10 align-self-center">
+                                <h6>
+                                    {{ users(chatting_user.userid).name +" "+
+                    users(chatting_user.userid).surname }}
+                                </h6>
+                            </div>
+                        </a>
+                    {% endfor %} {% endif %}
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-8 rightside">
+            <div class="row">
+                {% if chatting %}
+                    <div class="col-md-12 rightsidetop">
+                        <img class="img-fluid pp24" src="{{ url_for("static",
+              filename="img/user/") + users(messaginguser).imagePath }}"/>
+                        <span class="align-self-center"
+                        >{{ users(messaginguser).name +" "+ users(messaginguser).surname }} <small id="online"></small
+                        ></span>
+                    </div>
+                {% endif %}
+                <div class="col-md-12 messages" id="message">
+                    {% for message in messages %}
+                        <div class="row">
+                            <div class="col-md-12">
+                                {% if session.get("userid", "") == message.userId %}
+                                    <div class="sendermsgbox">
+                                        <p>
+                                            {{ emojize(message.messageContent) }}
+                                            <span>
+                        {{ message.messageDate }}
+                      </span>
+                                        </p>
+                                    </div>
+                                {% else %}
+                                    <div class="receivermsgbox">
+                                        <p>
+                                            {{ emojize(message.messageContent) }}
+                                            <span>
+                        {{ message.messageDate }}
+                      </span>
+                                        </p>
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+                {% if chatting %}
+                    <div class="col-md-12 sendmsgarea">
+                        <div class="row">
+                            <div class="col-md-11 p-0">
+                                <input
+                                        tabindex="1"
+                                        placeholder="Bir mesaj yazınız..."
+                                        class="form-control h-30 p-0"
+                                        id="text"
+                                />
+                            </div>
+                            <div class="col-md-1 p-0">
+                                <button class="btn btn-primary" id="sendbutton" type="submit">
+                                    <i class="fa fa-paper-plane"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+<!-- addchat modal start -->
+<div
+        class="modal fade"
+        id="addchat"
+        tabindex="-1"
+        role="dialog"
+        aria-hidden="true"
+>
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">Yeni Sohbet Ekle</div>
+            <form method="POST" action="" enctype="multipart/form-data">
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label for="username">Kullanıcı adı</label>
+                        <input
+                                type="text"
+                                name="username"
+                                id="username"
+                                class="form-control"
+                                maxlength="15"
+                                minlength="4"
+                                required
+                        />
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button
+                            type="submit"
+                            name="event"
+                            value="addchatsubmit"
+                            class="btn btn-primary"
+                    >
+                        Ekle
+                    </button>
+                    <button
+                            type="button"
+                            class="btn btn-secondary"
+                            data-dismiss="modal"
+                    >
+                        Kapat
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+<!-- addchat modal end -->
+</body>
+</html>

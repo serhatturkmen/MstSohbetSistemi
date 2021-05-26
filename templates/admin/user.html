@@ -1,0 +1,259 @@
+{% extends "admin/layout.html" %}
+{% block head %}
+<title>Kullanıcılar</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+{% endblock %}
+{% block body %}
+  <div class="row">
+    <div class="col-md-12">
+      <div class="card">
+        <div class="card-body">
+        {% include 'partials/_flashmessages.html' %}
+          <p class="card-title">
+            Kullanıcılar
+            <button type="button" class="btn btn-icon btn-primary btn-rounded" data-toggle="modal" data-target="#adduser" style="float: right;">
+                <i class="mdi mdi-plus"></i>
+            </button>
+          </p>
+            <input class="form-control" id="filterinput" type="text" placeholder="Arama yap...">
+            {% if users == [] %}
+                <div class="alert alert-warning">Kayıt yok</div>
+            {% else %}
+            <div class="table-responsive table-hover">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Numarası</th>
+                            <th>Adı</th>
+                            <th>statu</th>
+                            <th><center>Detay</center></th>
+                            <th><center>Düzenle</center></th>
+                            <th><center>Onay Durumu</center></th>
+                        </tr>
+                    </thead>
+                    <tbody id="filtertable">
+                    {% for userrows in users %}
+                        <tr>
+                            <td>{{ userrows.username}}</td>
+                            <td>{{ userrows.name + " " + userrows.surname }}</td>
+                            <td>{% if userrows.status == 1 %}
+                                        Admin
+                                    {% elif userrows.status == 2 %}
+                                        Kullanıcı
+                                    {% else %}
+                                        Kayıt Bilgisi tanımlı değil
+                                    {% endif %}</td>
+                    <td>
+                        <center>
+                            <button type="button" class="btn btn-primary btn-rounded btn-icon" data-toggle="modal" data-target="#see{{ userrows.id }}">
+                               <i class="mdi mdi-eye"></i>
+                            </button>
+                        </center>
+                    </td>
+                    <td>
+                        {% if session.get('name', '') != userrows.username %}
+                        <center>
+                            <button type="button" class="btn btn-warning btn-rounded btn-icon" data-toggle="modal" data-target="#update{{ userrows.id }}">
+                                <i class="mdi mdi-rename-box"></i>
+                            </button>
+                        </center>
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if session.get('name', '') != userrows.username %}
+                        <center>
+                            <form method="POST" action="{{ url_for('controller.adminUsers') }}">
+                                <input type="hidden" name="id" value="{{ userrows.id }}"/>
+                                <button type="submit" name="event" value="acceptuser" class="btn {% if userrows.useraccept %} btn-success{% else %} btn-warning {%endif%} btn-rounded btn-icon">
+                                    <i class="mdi {% if userrows.useraccept %} mdi-check{% else %} mdi-close{%endif%}"></i>
+                                </button>
+                            </form>
+                        </center>
+                        {% endif %}
+                    </td>
+                </tr>
+                <div class="modal" id="see{{ userrows.id }}">
+                  <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <img src="{% if userrows.resimYolu==None %}{{ url_for('static', filename='img/user/userNull.jpeg') }}
+                            {% else %}{{ url_for('static', filename='img/user/') }}{{ userrows.imagePath }}{% endif %}"
+                                 alt="{{userrows.name}}" class="img-fluid" style="max-height: 120px; max-width: 240px;">
+                            <div class="m-2">
+                                {{ userrows.name }} {{ userrows.surname }} <br/>
+                                <b>
+                                    {% if userrows.status == 1 %}
+                                        Admin
+                                    {% elif userrows.status == 2 %}
+                                        Akademisyen
+                                    {% else %}
+                                        Kayıt Bilgisi tanımlı değil
+                                    {% endif %}
+                                </b>
+                            </div>
+
+                        </div>
+                      <div class="modal-body">
+                          <b>Email:</b>{{ userrows.email }} <br/>
+                          <b>Cinsiyeti:</b>{{ userrows.gender }} <br/>
+                          <b>Kullanıcı Adı: </b>{{ userrows.username }}<br/>
+                          <b>Oluşurma Tarihi: </b>{{ userrows.createdDate }}<br/>
+                          <b>Son görülme tarihi: </b>{{ userrows.lastSeenDate }}<br/>
+                          <b>Aktif Kullanıcı mı?: </b>{%if userrows.userAccept%}Aktif{%else%}Pasif{%endif%}<br/>
+                      </div>
+                      <div class="modal-footer">
+                          {% if userrows.status != 1 %}
+                          <form action="{{ url_for('controller.adminUsers')}}" method="POST">
+                              <input type="hidden" name="id" value="{{ userrows.id }}"/>
+                              <button type="submit" name="event" value="banuser" class="btn btn-danger">Banla</button>
+                          </form>
+                          {% endif %}
+                        <button type="button" class="btn btn-danger" data-dismiss="modal">Kapat</button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="modal" id="update{{ userrows.id }}">
+                  <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            Kullanıcı Düzenle
+                        </div>
+                        <form method="POST" action="{{ url_for('controller.adminUsers') }}">
+                          <div class="modal-body">
+                            <div class="form-group">
+                                <label for="updatename">Adınız</label>
+                                <input type="text" value="{{ userrows.name }}" name="updatename" id="updatename" class="form-control" required />
+                                <input type="hidden" value="{{ userrows.id }}" name="updateid" />
+                            </div>
+                            <div class="form-group">
+                                <label for="updatesurname">Soyadınız</label>
+                                <input type="text" value="{{ userrows.surname }}" name="updatesurname" id="updatesurname" class="form-control" required />
+                            </div>
+                            <div class="form-group">
+                                <label for="updategender">Cinsiyetiniz</label>
+                                <select id="updategender" name="updategender" class="form-control">
+                                    <option value="E" {% if userrows.gender=='E' %}selected{% endif %}>Erkek</option>
+                                    <option value="K" {% if userrows.gender=='K' %}selected{% endif %}>Kadın</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="updateusername">Kullanıcı Numarası</label>
+                                <input type="text" value="{{ userrows.username }}" name="updateusername" id="updateusername" class="form-control" maxlength="15" minlength="4" required />
+                                <label class="help-block">*Lütfen 4-15 karakter aralığında bir kullanıcı adı giriniz</label>
+                            </div>
+                            <div class="form-group">
+                                <label for="updateeposta">E-posta adresi</label>
+                                <input type="email" value="{{ userrows.email }}" name="updateeposta" id="updateeposta" class="form-control" required />
+                            </div>
+                            <div class="form-group">
+                                <label for="updateusertype">Kullanıcı Tipi</label>
+                                <select id="updateusertype" name="updateusertype" class="form-control">
+                                        <option value="1" {% if userrows.status==1 %}selected{% endif %}>Admin</option>
+                                        <option value="2" {% if userrows.status==2 %}selected{% endif %}>Kullanıcı</option>
+                                </select>
+                            </div>
+                          </div>
+                          <div class="modal-footer">
+                            <button type="submit" name="event" value="updateuser" class="btn btn-primary" >Güncelle</button>
+                            <button type="button" class="btn btn-danger" data-dismiss="modal">Kapat</button>
+                          </div>
+                        </form>
+                    </div>
+                  </div>
+                </div>
+              {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        {% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
+<!-- modal başla-->
+<div class="modal fade" id="adduser" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">Kullanıcı Ekle</div>
+            <form method="POST" action="{{ url_for('controller.adminUsers') }}" enctype="multipart/form-data">
+                <div class="modal-body">
+                    <div class="form-group">
+                         <label for="userfile">Kullanıcı Resmi yükleyiniz</label>
+                         <div class="custom-file">
+                             <input type="file" class="custom-file-input"
+                                    accept="image/*"
+                                    name="userfile"
+                                    id="userfile"
+                                    onchange="validateFileType()"
+                             />
+                             <label class="custom-file-label" for="userfile" data-browse="Seç">Resim Seçiniz</label>
+                         </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="name">Adınız</label>
+                        <input type="text" name="name" id="name" class="form-control" required />
+                    </div>
+                    <div class="form-group">
+                        <label for="surname">Soyadınız</label>
+                        <input type="text" name="surname" id="surname" class="form-control" required />
+                    </div>
+                    <div class="form-group">
+                        <label for="gender">Cinsiyetiniz</label>
+                        <select id="gender" name="gender" class="form-control">
+                                <option value="E" selected>Erkek</option>
+                                <option value="K">Kadın</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="username">Kullanıcı adı</label>
+                        <input type="text" name="username" id="username" class="form-control" maxlength="15" minlength="4" required />
+                        <label class="help-block">*Lütfen 4-15 karakter aralığında bir kullanıcı adı giriniz</label>
+                    </div>
+                    <div class="form-group">
+                        <label for="userpass">Kullanıcı parola</label>
+                        <input type="password" name="userpass" id="userpass" class="form-control" maxlength="20" minlength="4" required />
+                    </div>
+                    <div class="form-group">
+                        <label for="eposta">E-posta adresi</label>
+                        <input type="email" name="eposta" id="eposta" class="form-control" required />
+                    </div>
+                    <div class="form-group">
+                        <label for="usertype">Kullanıcı Tipi</label>
+                        <select id="usertype" name="usertype" class="form-control">
+                                <option value="1">Admin</option>
+                                <option value="2">Akademisyen</option>
+                                <option value="3" selected>Öğrenci</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="submit" name="event" value="adduser" class="btn btn-primary">Ekle</button>
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Kapat</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+<!-- modal bitiş-->
+<script>
+    // seçilen dosya adını file inputa aktarıyor
+    $("#userfile").on("change", function() {
+      var fileName = $(this).val().split("\\").pop();
+      $(this).siblings(".custom-file-label").addClass("selected").html(fileName);
+    });
+    // resim kontrolü yapıyor
+    function validateFileType(){
+        var fileName = document.getElementById("userfile").value;
+        var idxDot = fileName.lastIndexOf(".") + 1;
+        var extFile = fileName.substr(idxDot, fileName.length).toLowerCase();
+        if (extFile=="jpg" || extFile=="jpeg" || extFile=="png"){
+            //to do
+        }else{
+            alert("Sadece jpg, jpeg ve png formtında resim kabul etmekteyiz");
+            document.getElementById("userfile").value="";
+        }
+    }
+</script>
+{% endblock %}

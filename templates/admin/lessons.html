@@ -1,0 +1,184 @@
+{% extends "admin/layout.html" %}
+{% block head %}
+<title>Dersler</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+{% endblock %}
+{% block body %}
+  <div class="row">
+    <div class="col-md-12">
+      <div class="card">
+        <div class="card-body">
+        {% include 'partials/_flashmessages.html' %}
+          <p class="card-title">
+            Dersler
+            <button type="button" class="btn btn-icon btn-primary btn-rounded" data-toggle="modal" data-target="#addlesson" style="float: right;">
+                <i class="mdi mdi-plus"></i>
+            </button>
+          </p>
+            <input class="form-control" id="filterinput" type="text" placeholder="Arama yap...">
+            {% if lessons == [] %}
+                <div class="alert alert-warning">Kayıt yok</div>
+            {% else %}
+            <div class="table-responsive table-hover">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Kodu</th>
+                            <th>Adı</th>
+                            <th>Sınıf</th>
+                            <th><center>Detay</center></th>
+                            <th><center>Düzenle</center></th>
+                            <th><center>Onay Durumu</center></th>
+                        </tr>
+                    </thead>
+                    <tbody id="filtertable">
+                    {% for lesson in lessons %}
+                        <tr>
+                            <td>{{ lesson.lessoncode}}</td>
+                            <td>{{ lesson.lessonname }}</td>
+                            <td>{{ lesson.lessonclass }}. sınıf</td>
+                    <td>
+                        <center>
+                        <button type="button" class="btn btn-primary btn-rounded btn-icon" data-toggle="modal" data-target="#see{{ lesson.id }}">
+                           <i class="mdi mdi-eye"></i>
+                        </button>
+                        </center>
+                    </td>
+                    <td>
+                        <center>
+                            <button type="button" class="btn btn-warning btn-rounded btn-icon" data-toggle="modal" data-target="#update{{ lesson.id }}">
+                                <i class="mdi mdi-rename-box"></i>
+                            </button>
+                        </center>
+                    </td>
+                    <td>
+                        <center>
+                            <form method="POST" action="{{ url_for('controller.lessons') }}">
+                                <input type="hidden" name="id" value="{{ lesson.id }}"/>
+                                <button type="submit" name="event" value="acceptlesson" class="btn {% if lesson.lessonactive %} btn-success{% else %} btn-warning {%endif%} btn-rounded btn-icon">
+                                    <i class="mdi {% if lesson.lessonactive %} mdi-check{% else %} mdi-close{%endif%}"></i>
+                                </button>
+                            </form>
+                        </center>
+                    </td>
+                </tr>
+                <div class="modal" id="see{{ lesson.id }}">
+                  <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            Ders Detay
+                        </div>
+                      <div class="modal-body">
+                          ({{lesson.lessoncode }}) {{ lesson.lessonname }} <br/>
+                          <b>Sınıfı:</b> {{ lesson.lessonclass }} <br/>
+                          <b>Dönem Dersi mi?: </b>{% if lesson.lessonactive %}Evet{%else%}Hayır{%endif%}<br/>
+                          <b>Dersi veren akademisyen: </b>{{ userview(lesson.userid).name + ' ' + userview(lesson.userid).surname }}<br/>
+                      </div>
+                      <div class="modal-footer">
+                          {% if lesson.lessonactive != 1 %}
+                          <form action="{{ url_for('controller.lessons')}}" method="POST">
+                              <input type="hidden" name="id" value="{{ lesson.id }}"/>
+                              <button type="submit" name="event" value="deletelesson" class="btn btn-danger">Sil</button>
+                          </form>
+                          {% endif %}
+                        <button type="button" class="btn btn-danger" data-dismiss="modal">Kapat</button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="modal" id="update{{ lesson.id }}">
+                  <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            Ders Düzenle
+                        </div>
+                        <form method="POST" action="{{ url_for('controller.lessons') }}">
+                          <div class="modal-body">
+                            <div class="form-group">
+                                <label for="updatename">Ders Adı</label>
+                                <input type="text" value="{{ lesson.lessonname }}" name="updatename" id="updatename" class="form-control" required />
+                                <input type="hidden" value="{{ lesson.id }}" name="updateid" />
+                            </div>
+                            <div class="form-group">
+                                <label for="updatelessoncode">Ders Kodu</label>
+                                <input type="text" value="{{ lesson.lessoncode }}" name="updatelessoncode" id="updatelessoncode" class="form-control" required />
+                            </div>
+                            <div class="form-group">
+                                <label for="updatelessonclass">Sınıf</label>
+                                <select id="updatelessonclass" name="updatelessonclass" class="form-control">
+                                    <option value="1" {% if lesson.lessonclass==1 %}selected{% endif %}>1.sınıf</option>
+                                    <option value="2" {% if lesson.lessonclass==2 %}selected{% endif %}>2.sınıf</option>
+                                    <option value="3" {% if lesson.lessonclass==3 %}selected{% endif %}>3.sınıf</option>
+                                    <option value="4" {% if lesson.lessonclass==4 %}selected{% endif %}>4.sınıf</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="updatelessonacademician">Dersi veren öğretim görevlisi</label>
+                                <select id="updatelessonacademician" name="updatelessonacademician" class="form-control">
+                                    {% for academician in academicians %}
+                                    <option value="{{academician.id}}" {% if lesson.userid==academician.id %}selected{% endif %}>{{academician.name +' '+academician.surname}}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                          </div>
+                          <div class="modal-footer">
+                            <button type="submit" name="event" value="updatelesson" class="btn btn-primary" >Güncelle</button>
+                            <button type="button" class="btn btn-danger" data-dismiss="modal">Kapat</button>
+                          </div>
+                        </form>
+                    </div>
+                  </div>
+                </div>
+              {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        {% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
+<!-- modal başla-->
+<div class="modal fade" id="addlesson" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">Ders Ekle</div>
+            <form method="POST" action="{{ url_for('controller.lessons') }}">
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label for="addname">Ders Adı</label>
+                        <input type="text" name="addname" id="addname" class="form-control" required />
+                    </div>
+                    <div class="form-group">
+                        <label for="addcode">Ders Kodu</label>
+                        <input type="text" name="addcode" id="addcode" class="form-control" required />
+                    </div>
+                    <div class="form-group">
+                        <label for="addlessonclass">Sınıf</label>
+                        <select id="addlessonclass" name="addlessonclass" class="form-control">
+                                <option value="1">1.sınıf</option>
+                                <option value="2">2.sınıf</option>
+                                <option value="3">3.sınıf</option>
+                                <option value="4">4.sınıf</option>
+                        </select>
+                    </div>
+                     <div class="form-group">
+                        <label for="addlessonacademician">Dersi veren öğretim görevlisi</label>
+                        <select id="addlessonacademician" name="addlessonacademician" class="form-control">
+                            {% for academician in academicians %}
+                            <option value="{{academician.id}}">{{academician.name +' '+academician.surname}}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="submit" name="event" value="addlesson" class="btn btn-primary">Ekle</button>
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Kapat</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+<!-- modal bitiş-->
+{% endblock %}

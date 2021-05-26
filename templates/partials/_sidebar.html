@@ -1,0 +1,42 @@
+<!-- partial:partials/_sidebar.html -->
+  <nav class="sidebar sidebar-offcanvas" id="sidebar">
+    <ul class="nav">
+      <li class="nav-item">
+        <a class="nav-link" href="{{ url_for('controller.adminIndex') }}">
+          <i class="mdi mdi-view-dashboard menu-icon"></i>
+          <span class="menu-title">Anasayfa</span>
+        </a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="{{ url_for('controller.adminUsers') }}">
+          <i class="mdi mdi-account-multiple-outline menu-icon"></i>
+          <span class="menu-title">Kullanıcılar</span>
+        </a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="{{ url_for('controller.adminMySetting') }}">
+          <i class="mdi mdi-account-badge menu-icon"></i>
+          <span class="menu-title">Ayarlarım</span>
+        </a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="{{ url_for('controller.adminMailSetting') }}">
+          <i class="mdi mdi-mail-ru menu-icon"></i>
+          <span class="menu-title">Mail Ayarları</span>
+        </a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="{{ url_for('controller.chat') }}">
+          <i class="mdi mdi-settings menu-icon"></i>
+          <span class="menu-title">Site Ayarları</span>
+        </a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="{{ url_for('controller.logout') }}">
+          <i class="mdi mdi-exit-to-app menu-icon"></i>
+          <span class="menu-title">Çıkış</span>
+        </a>
+      </li>
+    </ul>
+  </nav>
+  <!-- partial -->
