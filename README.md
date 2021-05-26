@@ -1,5 +1,27 @@
 # MstSohbetSistemi
-RealTime Flask Chat
+SocketIO kullanılarak yapılmış bir flask projesidir. Eşzamanlı mesaj alışverişi sağlanmıştır.
+
+# Used Python Library
+- flask
+- flask_sqlalchemy
+- flask_socketio
+- emoji
+
+# Eksikler
+- Kayıt ol
+- Şifremi unuttum
+- Admin paneli ayarları
+En yakın zamanda güncellenecektir.
+
+# Test için
+- Kütüphane kurulumu yapıldıktan sonra
+1. kullanıcı
+Kullanıcı adı test
+şifre test
+
+2. kullanıcı
+Kullanıcı adı woman
+şifre woman
 
 # Giriş Sayfası
 ![alt text](https://github.com/serhatturkmen/MstSohbetSistemi/blob/main/images/login.PNG)
