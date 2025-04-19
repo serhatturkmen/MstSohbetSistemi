@@ -45,3 +45,16 @@ Kullanıcı adı woman
 ![alt text](https://github.com/serhatturkmen/MstSohbetSistemi/blob/main/images/newstartchat.PNG)
 
 
+# Projeyi çalıştırma
+```
+python3 -m venv venv
+source venv/bin/activate
+pip install -r Requirements.txt
+python3 chat.py
+```
+
+Source(venv)'tan çıkmak için
+```
+deactivate
+```
+
