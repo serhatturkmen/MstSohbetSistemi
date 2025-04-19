@@ -1,12 +1,14 @@
 # -*- coding: utf-8 -*-
-from flask import session, redirect, url_for, render_template, request, flash
-from controller import controllerBlueprint as main
+from flask import Blueprint, session, redirect, url_for, render_template, request, flash
 from model import websettingEvents, authEvents, userEvents, chatEvents
-from chat import socketio
+from app_instance import socketio
 from emoji import emojize
 
 
-@main.route('/chat', methods=['GET', 'POST'])
+home = Blueprint("home", __name__)
+
+
+@home.route('/chat', methods=['GET', 'POST'])
 def chat():
     if authEvents.islogin(2) or authEvents.islogin(1):
         session["chatid"] = None
@@ -31,10 +33,10 @@ def chat():
                                chatting_users=chatting_users,
                                users=userEvents.view)
     else:
-        return redirect(url_for('.login'))
+        return redirect(url_for('auth.login'))
 
 
-@main.route('/chat/<string:chatid>', methods=['GET', 'POST'])
+@home.route('/chat/<string:chatid>', methods=['GET', 'POST'])
 def chatwithid(chatid):
     if authEvents.islogin(2) or authEvents.islogin(1):
         if request.method == "POST":
@@ -66,10 +68,10 @@ def chatwithid(chatid):
         else:
             return redirect(url_for('.chat'))
     else:
-        return redirect(url_for('.login'))
+        return redirect(url_for('auth.login'))
 
 
-@main.route('/')
+@home.route('/')
 def index():
     if session.get("login", ""):
         print("Giriş yapılmış. Ona göre sayfa hazırla")
@@ -80,17 +82,13 @@ def index():
                            user=userEvents.view(id=session.get('userid', '')))
 
 
-@main.errorhandler(404)
+@home.errorhandler(404)
 def notfound(error):
     print(error)
     return "not found 404"
 
 
-@main.errorhandler(405)
+@home.errorhandler(405)
 def notfounded(error):
     print(error)
     return "not founded 405"
-
-
-main.register_error_handler(404, notfound)
-main.register_error_handler(405, notfounded)

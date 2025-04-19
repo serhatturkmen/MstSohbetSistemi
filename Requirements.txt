@@ -1,4 +1,4 @@
 flask
 flask_sqlalchemy
-flask_socketio
+flask-socketio
 emoji

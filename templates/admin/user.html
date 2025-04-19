@@ -62,7 +62,7 @@
                     <td>
                         {% if session.get('name', '') != userrows.username %}
                         <center>
-                            <form method="POST" action="{{ url_for('controller.adminUsers') }}">
+                            <form method="POST" action="{{ url_for('admin.adminUsers') }}">
                                 <input type="hidden" name="id" value="{{ userrows.id }}"/>
                                 <button type="submit" name="event" value="acceptuser" class="btn {% if userrows.useraccept %} btn-success{% else %} btn-warning {%endif%} btn-rounded btn-icon">
                                     <i class="mdi {% if userrows.useraccept %} mdi-check{% else %} mdi-close{%endif%}"></i>
@@ -103,7 +103,7 @@
                       </div>
                       <div class="modal-footer">
                           {% if userrows.status != 1 %}
-                          <form action="{{ url_for('controller.adminUsers')}}" method="POST">
+                          <form action="{{ url_for('admin.adminUsers')}}" method="POST">
                               <input type="hidden" name="id" value="{{ userrows.id }}"/>
                               <button type="submit" name="event" value="banuser" class="btn btn-danger">Banla</button>
                           </form>
@@ -120,7 +120,7 @@
                         <div class="modal-header">
                             Kullanıcı Düzenle
                         </div>
-                        <form method="POST" action="{{ url_for('controller.adminUsers') }}">
+                        <form method="POST" action="{{ url_for('admin.adminUsers') }}">
                           <div class="modal-body">
                             <div class="form-group">
                                 <label for="updatename">Adınız</label>
@@ -177,7 +177,7 @@
     <div class="modal-dialog" role="document">
         <div class="modal-content">
             <div class="modal-header">Kullanıcı Ekle</div>
-            <form method="POST" action="{{ url_for('controller.adminUsers') }}" enctype="multipart/form-data">
+            <form method="POST" action="{{ url_for('admin.adminUsers') }}" enctype="multipart/form-data">
                 <div class="modal-body">
                     <div class="form-group">
                          <label for="userfile">Kullanıcı Resmi yükleyiniz</label>

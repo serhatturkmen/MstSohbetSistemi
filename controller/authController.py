@@ -1,31 +1,32 @@
-from controller import controllerBlueprint as auth
-from flask import render_template, url_for, redirect, request, flash, session
+from flask import Blueprint, render_template, url_for, redirect, request, flash, session
 from model.authEvents import logincontrol
 from model import userEvents, websettingEvents
 import random
 
+auth = Blueprint('auth', __name__)
 
 @auth.route("/register", methods=['GET', 'POST'])
 @auth.route("/login", methods=['GET', 'POST'])
 def login():
     if request.method == "POST":
-        if request.form.get("event", "") == "login":
+        if request.form.get("event", "") == "login":            
             username = request.form.get('usernamelogin', '')
             sonuc = logincontrol(username=username, password=request.form.get('userpasslogin',  ''))
+            print(sonuc)
             if sonuc == 1:
                 session['name'] = username
                 session['userid'] = userEvents.nametoid(username=username)
                 session['login'] = True
                 session['statu'] = "admin"
                 session['room'] = None
-                return redirect(url_for('.adminIndex'))
+                return redirect(url_for('admin.adminIndex'))
             elif sonuc == 2:
                 session['name'] = username
                 session['userid'] = userEvents.nametoid(username=username)
                 session['login'] = True
                 session['statu'] = "user"
                 session['room'] = None
-                return redirect(url_for('.index'))
+                return redirect(url_for('home.index'))
             elif sonuc == 4:
                 session['login'] = False
                 flash("Hesabınızın aktifleşmesi için yönetici onayı bekleniyor.", "warning")
@@ -74,7 +75,7 @@ def logout():
     session['userid'] = None
     session['login'] = False
     session['statu'] = None
-    return redirect(url_for('.login'))
+    return redirect(url_for('auth.login'))
 
 
 @auth.route('/kayitol', methods=['GET', 'POST'])

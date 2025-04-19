@@ -1,28 +1,22 @@
-from flask import Flask, session, flash, redirect, url_for
-from controller import controllerBlueprint
-from model import db, chatEvents
-from flask_socketio import SocketIO, emit, join_room, leave_room
+from flask import session, flash, redirect, url_for, Blueprint
+from model import chatEvents
+from flask_socketio import emit, join_room, leave_room
 from dateFunctions import getdate
 from emoji import emojize
 
+from controller.homeController import home
+from controller.authController import auth
+from controller.adminController import admin
 
-app = Flask(__name__)
-app.config['SECRET_KEY'] = 'qweytsdsar__*?.a32||klmbrd'
+from app_instance import app, socketio
 
-app.register_blueprint(controllerBlueprint)
+app.register_blueprint(admin)
+app.register_blueprint(auth)
+app.register_blueprint(home)
 
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///veritabani.db'
-app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+#app.register_error_handler(404, home.notfound)
+#app.register_error_handler(405, home.notfounded)
 
-db.init_app(app)
-
-with app.app_context():
-    db.create_all()
-
-siteurl = 'http://127.0.0.1:5050'
-
-async_mode = 'threading'
-socketio = SocketIO(app, async_mode=async_mode)
 
 kullanicilar=list()
 
@@ -41,7 +35,7 @@ def joined(message):
             emit('users', {'user': kullanicilar}, room=room, broadcast=True)
     else:
         flash('Giriş Bulunamadı', 'danger')
-        return redirect(url_for('.login'))
+        return redirect(url_for('auth.login'))
 
 
 @socketio.on('text', namespace='/chat')
@@ -62,7 +56,7 @@ def text(message):
         )
     else:
         flash('Giriş Bulunamadı', 'danger')
-        return redirect(url_for('.login'))
+        return redirect(url_for('auth.login'))
 
 
 @socketio.on('left', namespace='/chat')
@@ -75,7 +69,7 @@ def left(message):
         emit('users', {'user': kullanicilar}, room=room)
     else:
         flash('Giriş Bulunamadı', 'danger')
-        return redirect(url_for('.login'))
+        return redirect(url_for('auth.login'))
 
 
 if __name__ == '__main__':
@@ -83,7 +77,9 @@ if __name__ == '__main__':
     # socketio.run(app, port=5050, debug=True, host="192.168.1.76")
 
     # sunucu için
-    app.run(debug=True, host='127.0.0.1', port=5050)
+    # app.run(debug=True, host='127.0.0.1', port=5050)
+
+    socketio.run(app, port=5050, debug=True, host="127.0.0.1")
 
     # local my network
     # app.run(debug=True, host='192.168.1.76', port=5050)

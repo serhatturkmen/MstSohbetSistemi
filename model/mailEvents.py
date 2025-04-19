@@ -2,7 +2,7 @@ from model import Mail, db
 
 from flask import render_template
 import model.websettingEvents as websetting
-from chat import siteurl
+from config import siteurl
 
 import sys
 import smtplib

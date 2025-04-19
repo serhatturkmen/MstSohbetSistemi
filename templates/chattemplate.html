@@ -121,13 +121,13 @@
             window.onbeforeunload = function () {
                 socket.emit('left', {});
                 socket.disconnect();
-                window.location.href = "{{ url_for('.logout') }}";
+                window.location.href = "{{ url_for('auth.logout') }}";
             };
 
             $("#logout").click(function () {
                 socket.emit('left', {});
                 socket.disconnect();
-                window.location.href = "{{ url_for('.logout') }}";
+                window.location.href = "{{ url_for('auth.logout') }}";
             });
 
         };

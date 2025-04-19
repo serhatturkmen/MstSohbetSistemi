@@ -13,6 +13,7 @@ def islogin(statu):
 
 
 def logincontrol(username, password):
+    print(Users.query.get(1))
     islogin = Users.query.filter_by(username=username, password=password).first()
     if islogin:
         if islogin.userAccept:

@@ -1,6 +1,6 @@
 import os
 import uuid
-from chat import app
+from app_instance import app
 
 
 def acceptfileextention(filename):

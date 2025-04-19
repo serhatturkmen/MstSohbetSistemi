@@ -1,9 +1,9 @@
-from controller import controllerBlueprint as backEnd
-from flask import session, flash, request, redirect, url_for, render_template
+from flask import Blueprint, session, flash, request, redirect, url_for, render_template
 from model import websettingEvents, userEvents, authEvents
 
+admin = Blueprint("admin", __name__)
 
-@backEnd.route('/admin/', methods=['GET', 'POST'])
+@admin.route('/', methods=['GET', 'POST'])
 def adminIndex():
     if authEvents.islogin(1):
         if request.method == "POST":
@@ -14,10 +14,10 @@ def adminIndex():
                                user=userEvents.view(id=session.get("userid", "")))
     else:
         flash("Yetkisiz işlem.", "warning")
-        return redirect(url_for(".login"))
+        return redirect(url_for("auth.login"))
 
 
-@backEnd.route('/admin/users/', methods=['GET', 'POST'])
+@admin.route('/users/', methods=['GET', 'POST'])
 def adminUsers():
     if request.method == "POST":
         if request.form.get("event", "") == "adduser":
@@ -36,7 +36,7 @@ def adminUsers():
                            users=userEvents.viewall())
 
 
-@backEnd.route('/admin/banneduser/', methods=['GET', 'POST'])
+@admin.route('/banneduser/', methods=['GET', 'POST'])
 def adminBannedUser():
     if session.get("login", ""):
         if session.get("statu", "") == "admin":
@@ -45,10 +45,10 @@ def adminBannedUser():
                     pass
             return "Admin banlanan kullanıcılar"
     else:
-        return redirect(url_for(".login"))
+        return redirect(url_for("auth.login"))
 
 
-@backEnd.route('/admin/mailsetting', methods=['GET', 'POST'])
+@admin.route('/mailsetting', methods=['GET', 'POST'])
 def adminMailSetting():
     if request.method == "POST":
         if request.form.get("event", "") == "mailform":
@@ -56,10 +56,13 @@ def adminMailSetting():
     return "Admin mail ayarları"
 
 
-@backEnd.route('/admin/mysetting', methods=['GET', 'POST'])
-def adminMySetting():
+@admin.route('/mysetting', methods=['GET', 'POST'])
+def mysetting():
     if request.method == "POST":
         if request.form.get("event", "") == "mailform":
             pass
-    return "Admin mail ayarları"
+    return render_template("admin/mysetting.html",
+                           user=userEvents.view(session.get("userid", "")),
+                           setting=websettingEvents.view(),
+                           users=userEvents.viewall())
 
